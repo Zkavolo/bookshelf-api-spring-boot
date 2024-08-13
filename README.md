@@ -2,7 +2,7 @@
 
 ***
 
-![Bookshelf_DBDiagram.png](Images/Bookshelf_DBDiagram.png)
+![Bookshelf.png](Images/Bookshelf.png)
 
 ***
 
