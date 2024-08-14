@@ -24,10 +24,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public Category create(CategoryRequestDTO request) {
-
-        Optional<Category> existCategory = categoryRepository.findByName(request.getName());
-
-        if(!existCategory.isEmpty()){
+        if(!categoryRepository.findByName(request.getName()).isEmpty()){
             throw new InvalidRequestException("You cannot add a duplicate category!");
         }
 
