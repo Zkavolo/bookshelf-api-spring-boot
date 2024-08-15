@@ -6,13 +6,14 @@ import API.Bookshelf.repository.CategoryRepository;
 import API.Bookshelf.service.CategoryService;
 import API.Bookshelf.util.DTO.category.CategoryDeleteResponseDTO;
 import API.Bookshelf.util.DTO.category.CategoryRequestDTO;
+import API.Bookshelf.util.DTO.category.CategoryResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -23,60 +24,85 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public Category create(CategoryRequestDTO request) {
+    public CategoryResponseDTO create(CategoryRequestDTO request) {
         if(!categoryRepository.findByName(request.getName()).isEmpty()){
             throw new InvalidRequestException("You cannot add a duplicate category!");
         }
 
         Category category = Category.builder()
                 .categoryName(request.getName())
-                .createdAt(new Date())
-                .updatedAt(new Date())
+                .createdAt(new Date(System.currentTimeMillis()))
+                .updatedAt(new Date(System.currentTimeMillis()))
                 .build();
 
-        categoryRepository.save(category);
+        categoryRepository.insertTo(category);
 
-        return category;
+        CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.builder()
+                .categoryName(category.getCategoryName())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
+                .build();
+
+        return categoryResponseDTO;
     }
 
     @Override
-    public Page<Category> getAll(Pageable pageable) {
+    public Page<CategoryResponseDTO> getAll(Pageable pageable) {
         Page<Category> categoryPaged = categoryRepository.findAll(pageable);
-        List<Category> categoryList = categoryPaged.stream()
-                .map(category -> new Category(category.getId(), category.getCategoryName(), category.getCreatedAt(), category.getUpdatedAt()))
+        List<CategoryResponseDTO> categoryList = categoryPaged.stream()
+                .map(category -> new CategoryResponseDTO(category.getCategoryName(), category.getCreatedAt(), category.getUpdatedAt()))
                 .collect(Collectors.toList());
 
         return new PageImpl<>(categoryList, pageable, categoryPaged.getNumberOfElements());
     }
 
     @Override
-    public Category getOne(Integer id) {
-        return categoryRepository.findById(id).orElseThrow(()-> new InvalidRequestException("Category isn't found!"));
+    public CategoryResponseDTO getOne(Integer id) {
+        Category category = categoryRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Category isn't found!"));
+
+        CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.builder()
+                .categoryName(category.getCategoryName())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
+                .build();
+
+        return categoryResponseDTO;
     }
 
     @Override
-    public Category update(CategoryRequestDTO request, Integer id) {
-        Category category = getOne(id);
+    public CategoryResponseDTO update(CategoryRequestDTO request, Integer id) {
+        Category category = categoryRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Category isn't found!"));
 
         category.setCategoryName(request.getName());
-        category.setUpdatedAt(new Date());
+        category.setUpdatedAt(new Date(System.currentTimeMillis()));
 
         categoryRepository.save(category);
 
-        return category;
+        CategoryResponseDTO categoryResponseDTO = CategoryResponseDTO.builder()
+                .categoryName(category.getCategoryName())
+                .createdAt(category.getCreatedAt())
+                .updatedAt(category.getUpdatedAt())
+                .build();
+
+        return categoryResponseDTO;
     }
 
     @Override
     public CategoryDeleteResponseDTO delete(Integer id) {
-        Category category = getOne(id);
+        Category category = categoryRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Category isn't found!"));
 
         CategoryDeleteResponseDTO response = CategoryDeleteResponseDTO.builder()
                 .id(category.getId())
                 .message(category.getCategoryName()+" has been succesfully deleted!")
                 .build();
 
-        categoryRepository.delete(category);
+        categoryRepository.deleteOneById(category.getId());
 
         return response;
+    }
+
+    @Override
+    public Category getCategory(Integer id) {
+        return categoryRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Category isn't found!"));
     }
 }

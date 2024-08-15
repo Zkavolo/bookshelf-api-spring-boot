@@ -1,4 +1,4 @@
-package API.Bookshelf.util.DTO.category;
+package API.Bookshelf.util.DTO.user;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryRequestDTO {
-    @NotBlank(message = "Category name can't be blank")
+public class RegisterResponseDTO {
     private String name;
+    private String email;
 }

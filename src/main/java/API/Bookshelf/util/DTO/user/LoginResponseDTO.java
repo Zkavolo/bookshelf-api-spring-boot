@@ -1,5 +1,6 @@
-package API.Bookshelf.util.DTO.category;
+package API.Bookshelf.util.DTO.user;
 
+import jakarta.persistence.NamedStoredProcedureQueries;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class CategoryRequestDTO {
-    @NotBlank(message = "Category name can't be blank")
-    private String name;
+public class LoginResponseDTO {
+    private String token;
 }

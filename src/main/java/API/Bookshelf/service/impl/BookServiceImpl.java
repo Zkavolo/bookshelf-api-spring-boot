@@ -36,7 +36,7 @@ public class BookServiceImpl implements BookService {
             throw new InvalidRequestException("You cannot add a duplicate book!");
         }
 
-        Category category = categoryService.getOne(request.getCategoryId());
+        Category category = categoryService.getCategory(request.getCategoryId());
 
         Book book = Book.builder()
                 .name(request.getName())
@@ -63,12 +63,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Page<BookResponseDTO> getAll(Pageable pageable, String category) {
-        Category categoryObj = categoryRepository.findByName(category).orElseThrow(() ->
-                new InvalidRequestException("Category isn't found!"));
+        Category categoryObj = null;
+        if(category != null) categoryObj = categoryRepository.findByName(category).orElseThrow(() ->
+                    new InvalidRequestException("Category isn't found!"));
 
         Specification<Book> spec = BookSpecification.getSpecification(categoryObj);
 
         Page<Book> bookPaged = bookRepository.findAll(spec, pageable);
+//        Page<Book> bookPage = bookRepository.getAll(spec, pageable);
         List<BookResponseDTO> bookList = bookPaged.stream()
                 .map(book -> new BookResponseDTO(book.getName(), book.getPages(),
                         book.getCategory().getCategoryName(),
@@ -80,7 +82,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponseDTO getOne(Integer id) {
-        Book book = bookRepository.findById(id).orElseThrow(()-> new InvalidRequestException("Book isn't found!"));
+        Book book = bookRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Book isn't found!"));
 
         BookResponseDTO response = BookResponseDTO.builder()
                 .name(book.getName())
@@ -95,8 +97,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookResponseDTO update(BookRequestDTO request, Integer id) {
-        Category category = categoryService.getOne(request.getCategoryId());
-        Book book = bookRepository.findById(id).orElseThrow(()-> new InvalidRequestException("Book isn't found!"));
+        Category category = categoryService.getCategory(request.getCategoryId());
+        Book book = bookRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Book isn't found!"));
 
         book.setAuthor(request.getAuthor());
         book.setName(request.getName());
@@ -118,14 +120,14 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDeleteResponseDTO delete(Integer id) {
-        Book book = bookRepository.findById(id).orElseThrow(()-> new InvalidRequestException("Book isn't found!"));
+        Book book = bookRepository.getOneById(id).orElseThrow(()-> new InvalidRequestException("Book isn't found!"));
 
         BookDeleteResponseDTO response = BookDeleteResponseDTO.builder()
                 .id(book.getId())
                 .message(book.getName()+" has been succesfully deleted!")
                 .build();
 
-        bookRepository.delete(book);
+        bookRepository.deleteOneById(book.getId());
 
         return response;
     }

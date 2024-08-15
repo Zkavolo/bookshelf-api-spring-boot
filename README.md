@@ -23,6 +23,9 @@
 - PostgreSQL Driver
 - Lombok
 - Spring Boot DevTools
+- Spring Security
+- Validation
+- JSON Web Token
 
 ### Env
 
@@ -30,3 +33,4 @@
 - ${postgresUser}
 - ${postgresPassword}
 - ${databasePath}
+- ${JWT_Secret}
