@@ -107,6 +107,8 @@ public class BookServiceImpl implements BookService {
         book.setPublisher(request.getPublisher());
         book.setUpdatedAt(new Date());
 
+        bookRepository.save(book);
+
         BookResponseDTO response = BookResponseDTO.builder()
                 .name(book.getName())
                 .author(book.getAuthor())
